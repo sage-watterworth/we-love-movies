@@ -1,18 +1,41 @@
 const service = require("./movies.service");
-const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 
 async function list(req, res, next) {
-    const data = await service.list();
-    res.json({data});
+  const { is_showing } = req.query;
+  const data = is_showing ? await service.listShowing() : await service.list();
+  res.json({data});
+}
+async function movieExists(req, res, next) {
+  const { movieId } = req.params;
+  const movie = await service.read(movieId);
+  if (movie) {
+    res.locals.movie = movie;
+    return next();
   }
+  next({ status: 404, message: `Movie id not found: ${movieId}` });
+}
 
-// async function listShowing(req, res, next){ // any need for conditionals here?
-//     const showings = await service.listShowing();
-//     res.json({data});
-// }
+function read(req, res) {
+  const { movie: data } = res.locals;
+  res.json({ data });
+}
+
+async function readTheaters(req, res) {
+  const { movieId } = req.params;
+  const data = await service.readTheaters(movieId);
+  res.json({ data });
+}
+
+async function readReviews(req, res) {
+  const { movieId } = req.params;
+  const data = await service.readReviews(movieId);
+  res.json({ data });
+}
 
 
-  module.exports = {
-    list: asyncErrorBoundary(list)
-    // listShowing: asyncErrorBoundary(listShowing),
-  };
+module.exports = {
+  list,
+  read: [movieExists, read],
+  readTheaters: [movieExists, readTheaters],
+  readReviews: [movieExists, readReviews],
+}

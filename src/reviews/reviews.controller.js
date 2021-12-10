@@ -2,7 +2,8 @@ const service = require("./reviews.service");
 
 async function reviewExists(req, res, next) {
     const { reviewId } = req.params;
-    const review = await service.read;
+    console.log(req.params);
+    const review = await service.read(reviewId);
     if (review) {
         res.locals.review = review;
         return next();

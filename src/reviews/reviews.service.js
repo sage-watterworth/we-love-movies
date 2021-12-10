@@ -9,9 +9,16 @@ const addCritic = mapProperties({
   organization_name: "critic.organization_name",
 });
 
+function read(review_id){
+  return knex("reviews")
+  .select("*")
+  .where({review_id})
+  .first();
+}
+
 function update(review_id, updatedReview) {
   return knex("reviews")
-    .select("*")
+ //   .select("*")
     .where({ review_id })
     .update(updatedReview, "*");
 }
@@ -38,4 +45,5 @@ module.exports = {
     update,
     readUpdatedReview,
     destory,
+    read,
 }
